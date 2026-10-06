@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Fruit Market Sales Analysis</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+        <div class="logo">
+            🍎
+            <span>Fruit Market</span>
+        </div>
+
+        <nav>
+
+            <button class="nav-btn active" onclick="showSection('dashboard', this)">
+                🏠 Dashboard
+            </button>
+
+            <button class="nav-btn" onclick="showSection('fruits', this)">
+                🍎 Fruits
+            </button>
+
+            <button class="nav-btn" onclick="showSection('markets', this)">
+                🏪 Markets
+            </button>
+
+            <button class="nav-btn" onclick="showSection('analysis', this)">
+                📊 Sales Analysis
+            </button>
+
+            <button class="nav-btn" onclick="showSection('transactions', this)">
+                📋 Transactions
+            </button>
+
+        </nav>
+
+        <div class="hive-status">
+            <span id="statusDot">●</span>
+            <span id="hiveStatus">Checking Hive...</span>
+        </div>
+
+    </aside>
+
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+
+        <!-- HEADER -->
+        <header class="topbar">
+
+            <div>
+                <h1 id="pageTitle">Dashboard</h1>
+                <p>Fruit Market Sales Analysis using Apache Hive</p>
+            </div>
+
+            <button class="refresh-btn" onclick="refreshData()">
+                🔄 Refresh Data
+            </button>
+
+        </header>
+
+
+        <!-- DASHBOARD -->
+        <section id="dashboard" class="section active">
+
+            <div class="cards">
+
+                <div class="card">
+                    <div class="card-icon">📦</div>
+                    <div>
+                        <h3>Total Quantity</h3>
+                        <p id="totalQuantity">0</p>
+                        <span>kg sold</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon">💰</div>
+                    <div>
+                        <h3>Total Revenue</h3>
+                        <p id="totalRevenue">₹0</p>
+                        <span>sales revenue</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon">🧾</div>
+                    <div>
+                        <h3>Transactions</h3>
+                        <p id="totalTransactions">0</p>
+                        <span>sales records</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon">🏆</div>
+                    <div>
+                        <h3>Top Fruit</h3>
+                        <p id="topFruit">-</p>
+                        <span>highest quantity</span>
+                    </div>
+                </div>
+
+            </div>
+
+
+            <div class="chart-grid">
+
+                <div class="chart-box">
+                    <h2>Fruit-wise Sales</h2>
+                    <canvas id="fruitChart"></canvas>
+                </div>
+
+                <div class="chart-box">
+                    <h2>Market-wise Sales</h2>
+                    <canvas id="marketChart"></canvas>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- FRUITS -->
+        <section id="fruits" class="section">
+
+            <div class="section-header">
+
+                <div>
+                    <h2>Fruit Sales</h2>
+                    <p>Select a fruit to view its sales records.</p>
+                </div>
+
+                <select id="fruitFilter" onchange="loadFruitSales()">
+                    <option value="">All Fruits</option>
+                    <option value="Apple">Apple</option>
+                    <option value="Banana">Banana</option>
+                    <option value="Mango">Mango</option>
+                    <option value="Orange">Orange</option>
+                </select>
+
+            </div>
+
+            <div class="table-container">
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Fruit</th>
+                            <th>Quantity</th>
+                            <th>Price</th>
+                            <th>Market</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="fruitTableBody"></tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+
+        <!-- MARKETS -->
+        <section id="markets" class="section">
+
+            <div class="section-header">
+
+                <div>
+                    <h2>Market Analysis</h2>
+                    <p>Filter sales by market.</p>
+                </div>
+
+                <select id="marketFilter" onchange="loadMarketSales()">
+                    <option value="">All Markets</option>
+                    <option value="Coimbatore">Coimbatore</option>
+                    <option value="Chennai">Chennai</option>
+                    <option value="Madurai">Madurai</option>
+                </select>
+
+            </div>
+
+            <div class="chart-box market-analysis-chart">
+                <canvas id="marketAnalysisChart"></canvas>
+            </div>
+
+            <div class="table-container">
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Fruit</th>
+                            <th>Quantity</th>
+                            <th>Price</th>
+                            <th>Market</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="marketTableBody"></tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+
+        <!-- ANALYSIS -->
+        <section id="analysis" class="section">
+
+            <div class="section-header">
+
+                <div>
+                    <h2>Sales Analysis</h2>
+                    <p>Interactive analysis of fruit sales.</p>
+                </div>
+
+            </div>
+
+            <div class="chart-grid">
+
+                <div class="chart-box">
+                    <h2>Fruit Quantity Comparison</h2>
+                    <canvas id="analysisFruitChart"></canvas>
+                </div>
+
+                <div class="chart-box">
+                    <h2>Market Quantity Comparison</h2>
+                    <canvas id="analysisMarketChart"></canvas>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- TRANSACTIONS -->
+        <section id="transactions" class="section">
+
+            <div class="section-header">
+
+                <div>
+                    <h2>All Transactions</h2>
+                    <p>Search and filter all fruit sales records.</p>
+                </div>
+
+            </div>
+
+
+            <div class="filters">
+
+                <input
+                    type="text"
+                    id="searchInput"
+                    placeholder="🔎 Search fruit or market..."
+                    onkeyup="loadTransactions()"
+                >
+
+                <input
+                    type="date"
+                    id="fromDate"
+                    onchange="loadTransactions()"
+                >
+
+                <input
+                    type="date"
+                    id="toDate"
+                    onchange="loadTransactions()"
+                >
+
+                <button onclick="clearFilters()">
+                    Clear Filters
+                </button>
+
+            </div>
+
+
+            <div class="table-container">
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Fruit</th>
+                            <th>Quantity</th>
+                            <th>Price</th>
+                            <th>Market</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="transactionTableBody"></tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+</body>
+
+</html>
